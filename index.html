@@ -24,8 +24,8 @@
       border-radius: 50%;
       border: 2px solid white;
       margin-bottom: 20px;
-      box-shadow: 0 0 10px #3399ff;
-      transition: box-shadow 0.05s linear;
+      box-shadow: 0 0 20px #3399ff;
+      transition: box-shadow 0.1s ease;
     }
 
     h1 {
@@ -90,24 +90,16 @@
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
-    let smoothedEnergy = 0;
-
     function animate() {
       analyser.getByteFrequencyData(dataArray);
-
-      let lowFreq = 0;
+      let lowFreqEnergy = 0;
       for (let i = 0; i < 10; i++) {
-        lowFreq += dataArray[i];
+        lowFreqEnergy += dataArray[i];
       }
-      lowFreq /= 10;
+      lowFreqEnergy = lowFreqEnergy / 10;
 
-      smoothedEnergy = smoothedEnergy * 0.8 + lowFreq * 0.2;
-
-      const baseGlow = 10;
-      const boost = Math.max(0, smoothedEnergy - 60) * 0.8;
-      const glowSize = Math.min(baseGlow + boost, 40);
-
-      avatar.style.boxShadow = `0 0 ${glowSize}px #3399ff`;
+      const intensity = Math.min(lowFreqEnergy / 2, 100);
+      avatar.style.boxShadow = `0 0 ${20 + intensity}px #3399ff`;
 
       requestAnimationFrame(animate);
     }
