@@ -11,13 +11,15 @@
       background: #000;
       color: #fff;
       font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    body.ready {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
-      cursor: pointer;
     }
 
     .avatar {
@@ -42,7 +44,6 @@
       gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
-      z-index: 3;
     }
 
     .links a {
@@ -65,35 +66,51 @@
     }
 
     .overlay {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0,0,0,0.9);
+      background: #000;
       color: #fff;
       font-size: 1.2em;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      user-select: none;
+      cursor: default;
+      z-index: 9999;
+      transition: opacity 0.4s ease;
     }
 
-    .hidden {
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .content {
       display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    body.ready .content {
+      display: flex;
     }
   </style>
 </head>
 <body>
   <div class="overlay" id="overlay">click to enter</div>
 
-  <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar">
-  <h1>bap.lol</h1>
+  <div class="content">
+    <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar">
+    <h1>bap.lol</h1>
 
-  <div class="links">
-    <a href="https://discordapp.com/users/1267972503632871485" target="_blank">discord</a>
-    <a href="https://www.youtube.com/@TabbiBap" target="_blank">youtube</a>
-    <a href="https://github.com/branbrantanks" target="_blank">github</a>
+    <div class="links">
+      <a href="https://discordapp.com/users/1267972503632871485" target="_blank">discord</a>
+      <a href="https://www.youtube.com/@TabbiBap" target="_blank">youtube</a>
+      <a href="https://github.com/branbrantanks" target="_blank">github</a>
+    </div>
   </div>
 
   <audio id="bg-music" loop>
@@ -101,9 +118,10 @@
   </audio>
 
   <script>
+    const overlay = document.getElementById("overlay");
     const audio = document.getElementById("bg-music");
     const avatar = document.querySelector(".avatar");
-    const overlay = document.getElementById("overlay");
+
     audio.volume = 0.5;
 
     const context = new (window.AudioContext || window.webkitAudioContext)();
@@ -140,15 +158,16 @@
       avatar.style.boxShadow = `0 0 ${size}px ${color}`;
     }
 
-    function startAudio() {
-      overlay.classList.add('hidden');
+    function startExperience() {
+      overlay.classList.add("hidden");
+      document.body.classList.add("ready");
       audio.play();
       context.resume().then(() => {
         animate();
       });
     }
 
-    window.addEventListener("click", startAudio, { once: true });
+    window.addEventListener("click", startExperience, { once: true });
   </script>
 </body>
 </html>
