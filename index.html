@@ -16,6 +16,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      position: relative;
     }
 
     .avatar {
@@ -57,6 +58,17 @@
       color: #000;
     }
 
+    #waveform {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
     audio {
       display: none;
     }
@@ -75,9 +87,14 @@
     <source src="bg.mp3" type="audio/mpeg">
   </audio>
 
+  <canvas id="waveform" width="800" height="100"></canvas>
+
   <script>
     const audio = document.getElementById("bg-music");
     const avatar = document.querySelector(".avatar");
+    const canvas = document.getElementById("waveform");
+    const ctxCanvas = canvas.getContext("2d");
+
     audio.volume = 0.5;
 
     const context = new (window.AudioContext || window.webkitAudioContext)();
@@ -92,14 +109,39 @@
 
     function animate() {
       analyser.getByteFrequencyData(dataArray);
+
       let lowFreqEnergy = 0;
       for (let i = 0; i < 10; i++) {
         lowFreqEnergy += dataArray[i];
       }
       lowFreqEnergy = lowFreqEnergy / 10;
-
       const intensity = Math.min(lowFreqEnergy / 2, 100);
       avatar.style.boxShadow = `0 0 ${20 + intensity}px #3399ff`;
+
+      analyser.getByteTimeDomainData(dataArray);
+      ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
+      ctxCanvas.lineWidth = 2;
+      ctxCanvas.strokeStyle = "#88c0ff";
+      ctxCanvas.beginPath();
+
+      const sliceWidth = canvas.width / bufferLength;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = v * canvas.height / 2;
+
+        if (i === 0) {
+          ctxCanvas.moveTo(x, y);
+        } else {
+          ctxCanvas.lineTo(x, y);
+        }
+
+        x += sliceWidth;
+      }
+
+      ctxCanvas.lineTo(canvas.width, canvas.height / 2);
+      ctxCanvas.stroke();
 
       requestAnimationFrame(animate);
     }
