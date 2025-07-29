@@ -28,7 +28,7 @@
       border-radius: 50%;
       border: 2px solid white;
       margin-bottom: 20px;
-      box-shadow: 0 0 30px #3399ff;
+      box-shadow: 0 0 60px #3399ff;
       transition: box-shadow 0.05s linear;
     }
 
@@ -121,7 +121,6 @@
     const overlay = document.getElementById("overlay");
     const audio = document.getElementById("bg-music");
     const avatar = document.getElementById("avatar");
-
     audio.volume = 0.5;
 
     const context = new (window.AudioContext || window.webkitAudioContext)();
@@ -133,11 +132,6 @@
 
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
-
-    function getAuraColor(energy) {
-      const hue = 200 + Math.sin(Date.now() * 0.002) * 30;
-      return `hsl(${hue}, 100%, ${Math.min(80, 40 + energy / 2)}%)`;
-    }
 
     function animateGlow() {
       analyser.getByteFrequencyData(dataArray);
@@ -154,19 +148,20 @@
       }
       treble /= 28;
 
-      const energy = (bass + treble) / 2 + Math.random() * 10;
-      const glowSize = 30 + energy * 0.5;
-      const color = getAuraColor(energy);
+      const energy = (bass + treble) / 2 + Math.random() * 20;
+      const glowSize = 60 + energy * 1.5;
+      const hue = 200 + Math.sin(Date.now() * 0.0025) * 60;
+      const lightness = Math.min(90, 60 + energy * 0.4);
+      const color = `hsl(${hue}, 100%, ${lightness}%)`;
 
       avatar.style.boxShadow = `0 0 ${glowSize}px ${color}`;
 
-      requestAnimationFrame(animateGlow);
+      setTimeout(() => requestAnimationFrame(animateGlow), 30);
     }
 
     function startExperience() {
       overlay.classList.add("hidden");
       document.body.classList.add("ready");
-
       audio.play().then(() => {
         context.resume().then(() => {
           animateGlow();
