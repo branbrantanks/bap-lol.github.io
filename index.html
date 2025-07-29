@@ -71,9 +71,25 @@
     audio {
       display: none;
     }
+
+    #play-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background: #3399ff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 2;
+    }
   </style>
 </head>
 <body>
+  <button id="play-btn">Play Music</button>
+
   <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar" />
   <h1>bap.lol</h1>
   <div class="links">
@@ -82,7 +98,7 @@
     <a href="https://github.com/branbrantanks" target="_blank">github</a>
   </div>
 
-  <audio id="bg-music" autoplay loop>
+  <audio id="bg-music" loop>
     <source src="bg.mp3" type="audio/mpeg">
   </audio>
 
@@ -93,6 +109,7 @@
     const avatar = document.querySelector(".avatar");
     const canvas = document.getElementById("waveform");
     const ctxCanvas = canvas.getContext("2d");
+    const playBtn = document.getElementById("play-btn");
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -153,11 +170,13 @@
       requestAnimationFrame(animate);
     }
 
-    audio.onplay = () => {
+    playBtn.addEventListener('click', () => {
       context.resume().then(() => {
+        audio.play();
         animate();
+        playBtn.style.display = "none";
       });
-    };
+    });
   </script>
 </body>
 </html>
