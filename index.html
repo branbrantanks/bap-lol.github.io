@@ -1,55 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>bap.lol</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
+    html, body {
       margin: 0;
-      background: #0f0f0f;
-      font-family: sans-serif;
-      color: white;
-      text-align: center;
-      padding: 40px 20px;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
-    img {
+
+    .avatar {
       width: 100px;
       height: 100px;
-      border-radius: 100%;
+      border-radius: 50%;
       border: 2px solid white;
       margin-bottom: 20px;
+      box-shadow: 0 0 20px #ff66cc;
     }
+
     h1 {
-      font-size: 24px;
-      margin: 0 0 10px;
+      margin: 0;
+      font-size: 1.5em;
+      color: #c088ff;
+      margin-bottom: 20px;
     }
-    p {
-      font-size: 14px;
-      color: #aaa;
-      margin-bottom: 30px;
+
+    .links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
-    a {
-      display: block;
-      background: white;
-      color: black;
+
+    .links a {
+      padding: 10px 20px;
+      border: 1px solid #fff;
+      border-radius: 6px;
       text-decoration: none;
-      margin: 10px auto;
-      padding: 14px 24px;
-      border-radius: 8px;
-      max-width: 400px;
-      transition: background 0.2s ease;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease;
     }
-    a:hover {
-      background: #ccc;
+
+    .links a:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    audio {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <img src="https://cdn.discordapp.com/avatars/1267972503632871485/ccf161d497a46d8baf6d5718fa2abef0.webp?size=1024" alt="Profile Picture">
-  <h1>@bap</h1>
-
-  <a href="https://discord.com/1267972503632871485" target="_blank">Discord</a>
-  <a href="https://www.youtube.com/@TabbiBap" target="_blank">Youtube</a>
+  <img class="avatar" src="01831219-b60e-4a6d-8581-52217898759f.png" alt="Avatar" />
+  <h1>bap.lol</h1>
+  <div class="links">
+    <a href="https://discord.com/1267972503632871485" target="_blank">discord</a>
+    <a href="https://www.youtube.com/@TabbiBap" target="_blank">youtube</a>
+    <a href="https://github.com/branbrantanks" target="_blank">github</a>
+  </div>
+  <audio autoplay loop>
+    <source src="bg.mp3" type="audio/mpeg">
+  </audio>
 </body>
 </html>
