@@ -11,15 +11,11 @@
       background: #000;
       color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    body.ready {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
     }
 
     .avatar {
@@ -28,8 +24,8 @@
       border-radius: 50%;
       border: 2px solid white;
       margin-bottom: 20px;
-      box-shadow: 0 0 30px #3399ff;
-      transition: box-shadow 0.05s linear;
+      box-shadow: 0 0 20px #3399ff;
+      transition: box-shadow 0.1s ease;
     }
 
     h1 {
@@ -64,105 +60,55 @@
     audio {
       display: none;
     }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #000;
-      color: #fff;
-      font-size: 1.2em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      cursor: default;
-      z-index: 9999;
-      transition: opacity 0.4s ease;
-    }
-
-    .overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .content {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    body.ready .content {
-      display: flex;
-    }
   </style>
 </head>
 <body>
-  <div class="overlay" id="overlay">click to enter</div>
-
-  <div class="content">
-    <img class="avatar" id="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar">
-    <h1>bap.lol</h1>
-    <div class="links">
-      <a href="https://discordapp.com/users/1267972503632871485" target="_blank">discord</a>
-      <a href="https://www.youtube.com/@TabbiBap" target="_blank">youtube</a>
-      <a href="https://github.com/branbrantanks" target="_blank">github</a>
-    </div>
+  <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar" />
+  <h1>bap.lol</h1>
+  <div class="links">
+    <a href="https://discord.com/1267972503632871485" target="_blank">discord</a>
+    <a href="https://www.youtube.com/@TabbiBap" target="_blank">youtube</a>
+    <a href="https://github.com/branbrantanks" target="_blank">github</a>
   </div>
 
-  <audio id="bg-music" loop>
+  <audio id="bg-music" autoplay loop>
     <source src="bg.mp3" type="audio/mpeg">
   </audio>
 
   <script>
-    const overlay = document.getElementById("overlay");
-    const avatar = document.getElementById("avatar");
     const audio = document.getElementById("bg-music");
+    const avatar = document.querySelector(".avatar");
+    audio.volume = 0.5;
 
-    window.addEventListener("click", async () => {
-      overlay.classList.add("hidden");
-      document.body.classList.add("ready");
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const src = context.createMediaElementSource(audio);
+    const analyser = context.createAnalyser();
+    src.connect(analyser);
+    analyser.connect(context.destination);
+    analyser.fftSize = 256;
 
-      const context = new (window.AudioContext || window.webkitAudioContext)();
-      await context.resume();
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
 
-      const src = context.createMediaElementSource(audio);
-      const analyser = context.createAnalyser();
-      src.connect(analyser);
-      analyser.connect(context.destination);
-      analyser.fftSize = 128;
-
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      audio.volume = 0.5;
-      await audio.play();
-
-      function animateGlow() {
-        analyser.getByteFrequencyData(dataArray);
-
-        let bass = 0;
-        for (let i = 0; i < 10; i++) bass += dataArray[i];
-        bass /= 10;
-
-        let treble = 0;
-        for (let i = 100; i < 128; i++) treble += dataArray[i];
-        treble /= 28;
-
-        const energy = (bass + treble) / 2 + Math.random() * 20;
-        const glowSize = 40 + energy * 1.2;
-        const hue = 200 + Math.sin(Date.now() * 0.0025) * 60;
-        const lightness = Math.min(90, 60 + energy * 0.4);
-        const color = `hsl(${hue}, 100%, ${lightness}%)`;
-
-        avatar.style.boxShadow = `0 0 ${glowSize}px ${color}`;
-        requestAnimationFrame(animateGlow);
+    function animate() {
+      analyser.getByteFrequencyData(dataArray);
+      let lowFreqEnergy = 0;
+      for (let i = 0; i < 10; i++) {
+        lowFreqEnergy += dataArray[i];
       }
+      lowFreqEnergy = lowFreqEnergy / 10;
 
-      animateGlow();
-    }, { once: true });
+      const intensity = Math.min(lowFreqEnergy / 2, 100);
+      avatar.style.boxShadow = `0 0 ${20 + intensity}px #3399ff`;
+
+      requestAnimationFrame(animate);
+    }
+
+    audio.onplay = () => {
+      context.resume().then(() => {
+        animate();
+      });
+    };
   </script>
 </body>
 </html>
