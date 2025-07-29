@@ -17,6 +17,7 @@
       align-items: center;
       min-height: 100vh;
       overflow: hidden;
+      cursor: pointer;
     }
 
     .avatar {
@@ -62,9 +63,30 @@
     audio {
       display: none;
     }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.9);
+      color: #fff;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <div class="overlay" id="overlay">click to enter</div>
+
   <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar">
   <h1>bap.lol</h1>
 
@@ -74,13 +96,14 @@
     <a href="https://github.com/branbrantanks" target="_blank">github</a>
   </div>
 
-  <audio id="bg-music" autoplay loop>
+  <audio id="bg-music" loop>
     <source src="bg.mp3" type="audio/mpeg">
   </audio>
 
   <script>
     const audio = document.getElementById("bg-music");
     const avatar = document.querySelector(".avatar");
+    const overlay = document.getElementById("overlay");
     audio.volume = 0.5;
 
     const context = new (window.AudioContext || window.webkitAudioContext)();
@@ -94,7 +117,7 @@
     const dataArray = new Uint8Array(bufferLength);
 
     function getAuraColor(energy) {
-      const hue = 200 + Math.sin(Date.now() * 0.002) * 50;
+      const hue = 200 + Math.sin(Date.now() * 0.002) * 40;
       return `hsl(${hue}, 100%, ${Math.min(80, 40 + energy / 2)}%)`;
     }
 
@@ -117,9 +140,15 @@
       avatar.style.boxShadow = `0 0 ${size}px ${color}`;
     }
 
-    audio.onplay = () => {
-      context.resume().then(() => animate());
-    };
+    function startAudio() {
+      overlay.classList.add('hidden');
+      audio.play();
+      context.resume().then(() => {
+        animate();
+      });
+    }
+
+    window.addEventListener("click", startAudio, { once: true });
   </script>
 </body>
 </html>
