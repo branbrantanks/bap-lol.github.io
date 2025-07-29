@@ -29,7 +29,7 @@
       border: 2px solid white;
       margin-bottom: 20px;
       box-shadow: 0 0 30px #3399ff;
-      transition: box-shadow 0.1s ease;
+      transition: box-shadow 0.05s linear;
     }
 
     h1 {
@@ -103,7 +103,7 @@
   <div class="overlay" id="overlay">click to enter</div>
 
   <div class="content">
-    <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar">
+    <img class="avatar" id="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar">
     <h1>bap.lol</h1>
 
     <div class="links">
@@ -120,7 +120,7 @@
   <script>
     const overlay = document.getElementById("overlay");
     const audio = document.getElementById("bg-music");
-    const avatar = document.querySelector(".avatar");
+    const avatar = document.getElementById("avatar");
 
     audio.volume = 0.5;
 
@@ -135,35 +135,42 @@
     const dataArray = new Uint8Array(bufferLength);
 
     function getAuraColor(energy) {
-      const hue = 200 + Math.sin(Date.now() * 0.002) * 40;
+      const hue = 200 + Math.sin(Date.now() * 0.002) * 30;
       return `hsl(${hue}, 100%, ${Math.min(80, 40 + energy / 2)}%)`;
     }
 
-    function animate() {
-      requestAnimationFrame(animate);
+    function animateGlow() {
       analyser.getByteFrequencyData(dataArray);
 
-      let lowFreq = 0;
-      for (let i = 0; i < 10; i++) lowFreq += dataArray[i];
-      lowFreq /= 10;
+      let bass = 0;
+      for (let i = 0; i < 10; i++) {
+        bass += dataArray[i];
+      }
+      bass /= 10;
 
-      let highFreq = 0;
-      for (let i = 100; i < 128; i++) highFreq += dataArray[i];
-      highFreq /= 28;
+      let treble = 0;
+      for (let i = 100; i < 128; i++) {
+        treble += dataArray[i];
+      }
+      treble /= 28;
 
-      const energy = (lowFreq + highFreq) / 2 + Math.random() * 10;
-      const size = 30 + energy * 0.5;
+      const energy = (bass + treble) / 2 + Math.random() * 10;
+      const glowSize = 30 + energy * 0.5;
       const color = getAuraColor(energy);
 
-      avatar.style.boxShadow = `0 0 ${size}px ${color}`;
+      avatar.style.boxShadow = `0 0 ${glowSize}px ${color}`;
+
+      requestAnimationFrame(animateGlow);
     }
 
     function startExperience() {
       overlay.classList.add("hidden");
       document.body.classList.add("ready");
-      audio.play();
-      context.resume().then(() => {
-        animate();
+
+      audio.play().then(() => {
+        context.resume().then(() => {
+          animateGlow();
+        });
       });
     }
 
