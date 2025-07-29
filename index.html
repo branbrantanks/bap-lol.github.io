@@ -24,8 +24,8 @@
       border-radius: 50%;
       border: 2px solid white;
       margin-bottom: 20px;
-      box-shadow: 0 0 20px #3399ff;
-      transition: box-shadow 0.1s ease;
+      box-shadow: 0 0 10px #3399ff;
+      transition: box-shadow 0.06s ease;
     }
 
     h1 {
@@ -92,14 +92,18 @@
 
     function animate() {
       analyser.getByteFrequencyData(dataArray);
+
       let lowFreqEnergy = 0;
       for (let i = 0; i < 10; i++) {
         lowFreqEnergy += dataArray[i];
       }
       lowFreqEnergy = lowFreqEnergy / 10;
 
-      const intensity = Math.min(lowFreqEnergy / 2, 100);
-      avatar.style.boxShadow = `0 0 ${20 + intensity}px #3399ff`;
+      const baseGlow = 10;
+      const beatBoost = Math.pow(Math.max(0, lowFreqEnergy - 80) / 2, 1.3);
+      const glowSize = baseGlow + beatBoost;
+
+      avatar.style.boxShadow = `0 0 ${glowSize}px #3399ff`;
 
       requestAnimationFrame(animate);
     }
