@@ -19,14 +19,15 @@
     }
 
     .avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      border: 2px solid white;
-      margin-bottom: 20px;
-      box-shadow: 0 0 20px #3399ff;
-      transition: box-shadow 0.1s ease;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-bottom: 20px;
+    box-shadow: 0 0 30px #3399ff;
+    transition: box-shadow 0.1s linear;
     }
+
 
     h1 {
       margin: 0;
@@ -75,40 +76,53 @@
     <source src="bg.mp3" type="audio/mpeg">
   </audio>
 
-  <script>
-    const audio = document.getElementById("bg-music");
-    const avatar = document.querySelector(".avatar");
-    audio.volume = 0.5;
+<script>
+  const audio = document.getElementById("bg-music");
+  const avatar = document.querySelector(".avatar");
+  audio.volume = 0.5;
 
-    const context = new (window.AudioContext || window.webkitAudioContext)();
-    const src = context.createMediaElementSource(audio);
-    const analyser = context.createAnalyser();
-    src.connect(analyser);
-    analyser.connect(context.destination);
-    analyser.fftSize = 256;
+  const context = new (window.AudioContext || window.webkitAudioContext)();
+  const src = context.createMediaElementSource(audio);
+  const analyser = context.createAnalyser();
+  src.connect(analyser);
+  analyser.connect(context.destination);
+  analyser.fftSize = 256;
 
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
 
-    function animate() {
-      analyser.getByteFrequencyData(dataArray);
-      let lowFreqEnergy = 0;
-      for (let i = 0; i < 10; i++) {
-        lowFreqEnergy += dataArray[i];
-      }
-      lowFreqEnergy = lowFreqEnergy / 10;
+  function getWaveGlowColor(intensity) {
+    const baseHue = 210 + Math.sin(Date.now() * 0.001) * 20;
+    return `hsl(${baseHue}, 100%, ${50 + intensity / 2}%)`;
+  }
 
-      const intensity = Math.min(lowFreqEnergy / 2, 100);
-      avatar.style.boxShadow = `0 0 ${20 + intensity}px #3399ff`;
+  function animate() {
+    analyser.getByteFrequencyData(dataArray);
 
-      requestAnimationFrame(animate);
-    }
+    let low = 0;
+    for (let i = 0; i < 10; i++) low += dataArray[i];
+    low = low / 10;
 
-    audio.onplay = () => {
-      context.resume().then(() => {
-        animate();
-      });
-    };
-  </script>
+    let high = 0;
+    for (let i = 100; i < 120; i++) high += dataArray[i];
+    high = high / 20;
+
+    const chaos = Math.random() * 10;
+    const wave = Math.sin(Date.now() * 0.01) * 10;
+    const size = 30 + low * 0.5 + high * 0.2 + chaos + wave;
+
+    const glowColor = getWaveGlowColor(size);
+    avatar.style.boxShadow = `0 0 ${size}px ${glowColor}`;
+
+    requestAnimationFrame(animate);
+  }
+
+  audio.onplay = () => {
+    context.resume().then(() => {
+      animate();
+    });
+  };
+</script>
+
 </body>
 </html>
