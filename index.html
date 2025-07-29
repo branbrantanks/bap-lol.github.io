@@ -13,38 +13,24 @@
       font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       min-height: 100vh;
       overflow: hidden;
     }
 
-    .avatar-wrapper {
-      position: relative;
-      width: 300px;
-      height: 300px;
-      margin-bottom: 20px;
-    }
-
-    #wave {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
-
     .avatar {
-      position: absolute;
-      top: 100px;
-      left: 100px;
       width: 100px;
       height: 100px;
       border-radius: 50%;
       border: 2px solid white;
-      z-index: 2;
+      margin-bottom: 20px;
+      box-shadow: 0 0 30px #3399ff;
+      transition: box-shadow 0.1s ease;
     }
 
     h1 {
+      margin: 0;
       font-size: 1.5em;
       color: #88c0ff;
       margin-bottom: 20px;
@@ -79,11 +65,7 @@
   </style>
 </head>
 <body>
-  <div class="avatar-wrapper">
-    <canvas id="wave" width="300" height="300"></canvas>
-    <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar">
-  </div>
-
+  <img class="avatar" src="9c51bdbd-aa5f-4ead-bd7d-f32a92c4b832.png" alt="Avatar">
   <h1>bap.lol</h1>
 
   <div class="links">
@@ -98,8 +80,8 @@
 
   <script>
     const audio = document.getElementById("bg-music");
-    const canvas = document.getElementById("wave");
-    const ctx = canvas.getContext("2d");
+    const avatar = document.querySelector(".avatar");
+    audio.volume = 0.5;
 
     const context = new (window.AudioContext || window.webkitAudioContext)();
     const src = context.createMediaElementSource(audio);
@@ -111,43 +93,33 @@
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = 80;
+    function getAuraColor(energy) {
+      const hue = 200 + Math.sin(Date.now() * 0.002) * 50;
+      return `hsl(${hue}, 100%, ${Math.min(80, 40 + energy / 2)}%)`;
+    }
 
-    function draw() {
-      requestAnimationFrame(draw);
+    function animate() {
+      requestAnimationFrame(animate);
       analyser.getByteFrequencyData(dataArray);
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.save();
-      ctx.translate(centerX, centerY);
+      let lowFreq = 0;
+      for (let i = 0; i < 10; i++) lowFreq += dataArray[i];
+      lowFreq /= 10;
 
-      ctx.beginPath();
-      for (let i = 0; i < bufferLength; i++) {
-        const angle = (i / bufferLength) * 2 * Math.PI;
-        const length = dataArray[i] * 0.6;
-        const x = Math.cos(angle) * (radius + length);
-        const y = Math.sin(angle) * (radius + length);
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.closePath();
-      ctx.strokeStyle = '#33ccff';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      let highFreq = 0;
+      for (let i = 100; i < 128; i++) highFreq += dataArray[i];
+      highFreq /= 28;
 
-      ctx.restore();
+      const energy = (lowFreq + highFreq) / 2 + Math.random() * 10;
+      const size = 30 + energy * 0.5;
+      const color = getAuraColor(energy);
+
+      avatar.style.boxShadow = `0 0 ${size}px ${color}`;
     }
 
     audio.onplay = () => {
-      context.resume().then(() => draw());
+      context.resume().then(() => animate());
     };
-
-    audio.volume = 0.5;
   </script>
 </body>
 </html>
