@@ -17,6 +17,7 @@
       align-items: center;
       min-height: 100vh;
       position: relative;
+      overflow: hidden;
     }
 
     .avatar {
@@ -27,6 +28,7 @@
       margin-bottom: 20px;
       box-shadow: 0 0 20px #3399ff;
       transition: box-shadow 0.1s ease;
+      z-index: 1;
     }
 
     h1 {
@@ -34,6 +36,7 @@
       font-size: 1.5em;
       color: #88c0ff;
       margin-bottom: 20px;
+      z-index: 1;
     }
 
     .links {
@@ -41,6 +44,7 @@
       gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
+      z-index: 1;
     }
 
     .links a {
@@ -64,7 +68,7 @@
       left: 0;
       width: 100vw;
       height: 100px;
-      background: rgba(0, 0, 0, 0.0);
+      background: rgba(0, 0, 0, 0);
       z-index: 0;
     }
 
@@ -72,23 +76,44 @@
       display: none;
     }
 
-    #play-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      background: #3399ff;
-      color: white;
-      font-weight: bold;
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      transition: opacity 0.4s ease;
       cursor: pointer;
-      z-index: 2;
+    }
+
+    .overlay h2 {
+      font-size: 2em;
+      color: #88c0ff;
+      text-align: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid #88c0ff;
+      border-radius: 10px;
+    }
+
+    .hide {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <button id="play-btn">Play Music</button>
+  <div class="overlay" id="overlay">
+    <h2>Click to Enter</h2>
+  </div>
 
   <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar" />
   <h1>bap.lol</h1>
@@ -109,7 +134,7 @@
     const avatar = document.querySelector(".avatar");
     const canvas = document.getElementById("waveform");
     const ctxCanvas = canvas.getContext("2d");
-    const playBtn = document.getElementById("play-btn");
+    const overlay = document.getElementById("overlay");
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -170,11 +195,11 @@
       requestAnimationFrame(animate);
     }
 
-    playBtn.addEventListener('click', () => {
+    overlay.addEventListener('click', () => {
       context.resume().then(() => {
         audio.play();
         animate();
-        playBtn.style.display = "none";
+        overlay.classList.add("hide");
       });
     });
   </script>
