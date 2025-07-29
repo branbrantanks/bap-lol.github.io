@@ -119,57 +119,51 @@
 
   <script>
     const overlay = document.getElementById("overlay");
-    const audio = document.getElementById("bg-music");
     const avatar = document.getElementById("avatar");
-    audio.volume = 0.5;
+    const audio = document.getElementById("bg-music");
 
-    const context = new (window.AudioContext || window.webkitAudioContext)();
-    const src = context.createMediaElementSource(audio);
-    const analyser = context.createAnalyser();
-    src.connect(analyser);
-    analyser.connect(context.destination);
-    analyser.fftSize = 128;
-
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-
-    function animateGlow() {
-      analyser.getByteFrequencyData(dataArray);
-
-      let bass = 0;
-      for (let i = 0; i < 10; i++) {
-        bass += dataArray[i];
-      }
-      bass /= 10;
-
-      let treble = 0;
-      for (let i = 100; i < 128; i++) {
-        treble += dataArray[i];
-      }
-      treble /= 28;
-
-      const energy = (bass + treble) / 2 + Math.random() * 20;
-      const glowSize = 60 + energy * 1.5;
-      const hue = 200 + Math.sin(Date.now() * 0.0025) * 60;
-      const lightness = Math.min(90, 60 + energy * 0.4);
-      const color = `hsl(${hue}, 100%, ${lightness}%)`;
-
-      avatar.style.boxShadow = `0 0 ${glowSize}px ${color}`;
-
-      setTimeout(() => requestAnimationFrame(animateGlow), 30);
-    }
-
-    function startExperience() {
+    window.addEventListener("click", async () => {
       overlay.classList.add("hidden");
       document.body.classList.add("ready");
-      audio.play().then(() => {
-        context.resume().then(() => {
-          animateGlow();
-        });
-      });
-    }
 
-    window.addEventListener("click", startExperience, { once: true });
+      const context = new (window.AudioContext || window.webkitAudioContext)();
+      await context.resume();
+
+      const src = context.createMediaElementSource(audio);
+      const analyser = context.createAnalyser();
+      src.connect(analyser);
+      analyser.connect(context.destination);
+      analyser.fftSize = 128;
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      audio.volume = 0.5;
+      audio.play();
+
+      function animateGlow() {
+        analyser.getByteFrequencyData(dataArray);
+
+        let bass = 0;
+        for (let i = 0; i < 10; i++) bass += dataArray[i];
+        bass /= 10;
+
+        let treble = 0;
+        for (let i = 100; i < 128; i++) treble += dataArray[i];
+        treble /= 28;
+
+        const energy = (bass + treble) / 2 + Math.random() * 20;
+        const glowSize = 60 + energy * 1.5;
+        const hue = 200 + Math.sin(Date.now() * 0.0025) * 60;
+        const lightness = Math.min(90, 60 + energy * 0.4);
+        const color = `hsl(${hue}, 100%, ${lightness}%)`;
+
+        avatar.style.boxShadow = `0 0 ${glowSize}px ${color}`;
+        requestAnimationFrame(animateGlow);
+      }
+
+      animateGlow();
+    }, { once: true });
   </script>
 </body>
 </html>
