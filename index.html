@@ -121,7 +121,7 @@
     <h2>Click to Enter</h2>
   </div>
 
-  <video id="bg-video" autoplay loop playsinline>
+  <video id="bg-video" loop playsinline>
     <source src="https://cdn.discordapp.com/attachments/1397515987674202142/1399973624600854609/infectcdHD_1753849808_musicaldown.com.mp4" type="video/mp4">
   </video>
 
@@ -211,6 +211,7 @@
     overlay.addEventListener('click', async () => {
       try {
         await context.resume();
+        await video.play();
         setupAudioAnalyser();
         animate();
         overlay.classList.add("hide");
