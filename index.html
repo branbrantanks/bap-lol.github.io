@@ -24,10 +24,13 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
+      min-width: 100vw;
+      min-height: 100vh;
+      width: auto;
+      height: auto;
       object-fit: cover;
       z-index: -1;
+      pointer-events: none;
     }
 
     .avatar {
@@ -121,7 +124,7 @@
     <h2>Click to Enter</h2>
   </div>
 
-  <video id="bg-video" autoplay loop muted playsinline>
+  <video id="bg-video" autoplay loop playsinline>
     <source src="https://cdn.discordapp.com/attachments/1397515987674202142/1399973624600854609/infectcdHD_1753849808_musicaldown.com.mp4?ex=688af28a&is=6889a10a&hm=688dee4119fb4da0c80966a66f554ad2f8620947e46ee26211ad7430bf3d8663&" type="video/mp4">
   </video>
 
@@ -205,6 +208,8 @@
 
     overlay.addEventListener('click', () => {
       video.muted = false;
+      video.volume = 1.0;
+
       context.resume().then(() => {
         setupAudioAnalyser();
         video.play();
