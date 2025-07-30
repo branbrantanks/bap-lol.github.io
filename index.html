@@ -20,6 +20,16 @@
       overflow: hidden;
     }
 
+    video#bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+    }
+
     .avatar {
       width: 100px;
       height: 100px;
@@ -72,10 +82,6 @@
       z-index: 0;
     }
 
-    audio {
-      display: none;
-    }
-
     .overlay {
       position: fixed;
       top: 0;
@@ -115,6 +121,10 @@
     <h2>Click to Enter</h2>
   </div>
 
+  <video id="bg-video" autoplay loop muted playsinline>
+    <source src="bg.mp4" type="video/mp4">
+  </video>
+
   <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar" />
   <h1>bap.lol</h1>
   <div class="links">
@@ -123,14 +133,10 @@
     <a href="https://github.com/branbrantanks" target="_blank">github</a>
   </div>
 
-  <audio id="bg-music" loop>
-    <source src="bg.mp3" type="audio/mpeg">
-  </audio>
-
   <canvas id="waveform"></canvas>
 
   <script>
-    const audio = document.getElementById("bg-music");
+    const video = document.getElementById("bg-video");
     const avatar = document.querySelector(".avatar");
     const canvas = document.getElementById("waveform");
     const ctxCanvas = canvas.getContext("2d");
@@ -144,17 +150,19 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    audio.volume = 0.15;
-
     const context = new (window.AudioContext || window.webkitAudioContext)();
-    const src = context.createMediaElementSource(audio);
-    const analyser = context.createAnalyser();
-    src.connect(analyser);
-    analyser.connect(context.destination);
-    analyser.fftSize = 256;
+    let analyser, dataArray, bufferLength;
 
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
+    function setupAudioAnalyser() {
+      const src = context.createMediaElementSource(video);
+      analyser = context.createAnalyser();
+      src.connect(analyser);
+      analyser.connect(context.destination);
+      analyser.fftSize = 256;
+
+      bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+    }
 
     function animate() {
       analyser.getByteFrequencyData(dataArray);
@@ -196,8 +204,10 @@
     }
 
     overlay.addEventListener('click', () => {
+      video.muted = false;
       context.resume().then(() => {
-        audio.play();
+        setupAudioAnalyser();
+        video.play();
         animate();
         overlay.classList.add("hide");
       });
