@@ -143,10 +143,9 @@
     const ctxCanvas = canvas.getContext("2d");
     const overlay = document.getElementById("overlay");
 
-    // Start muted by default (JavaScript-controlled)
     video.muted = true;
+    video.pause();
     video.volume = 1.0;
-    video.pause(); // Don't autoplay — wait for user click
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -158,17 +157,6 @@
 
     const context = new (window.AudioContext || window.webkitAudioContext)();
     let analyser, dataArray, bufferLength;
-
-    function setupAudioAnalyser() {
-      const src = context.createMediaElementSource(video);
-      analyser = context.createAnalyser();
-      src.connect(analyser);
-      analyser.connect(context.destination);
-      analyser.fftSize = 256;
-
-      bufferLength = analyser.frequencyBinCount;
-      dataArray = new Uint8Array(bufferLength);
-    }
 
     function animate() {
       analyser.getByteFrequencyData(dataArray);
@@ -209,14 +197,26 @@
       requestAnimationFrame(animate);
     }
 
-    overlay.addEventListener('click', () => {
-      video.muted = false;
-      context.resume().then(() => {
-        setupAudioAnalyser();
-        video.play();
+    overlay.addEventListener('click', async () => {
+      try {
+        video.muted = false;
+        await video.play();
+        await context.resume();
+
+        const src = context.createMediaElementSource(video);
+        analyser = context.createAnalyser();
+        src.connect(analyser);
+        analyser.connect(context.destination);
+        analyser.fftSize = 256;
+
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+
         animate();
         overlay.classList.add("hide");
-      });
+      } catch (e) {
+        console.error("Playback or AudioContext failed:", e);
+      }
     });
   </script>
 </body>
