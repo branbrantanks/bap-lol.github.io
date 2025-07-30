@@ -28,7 +28,6 @@
       height: 100vh;
       object-fit: cover;
       z-index: -1;
-      pointer-events: none;
     }
 
     .avatar {
@@ -122,7 +121,7 @@
     <h2>Click to Enter</h2>
   </div>
 
-  <video id="bg-video" playsinline>
+  <video id="bg-video" autoplay loop muted playsinline>
     <source src="https://cdn.discordapp.com/attachments/1397515987674202142/1399973624600854609/infectcdHD_1753849808_musicaldown.com.mp4?ex=688af28a&is=6889a10a&hm=688dee4119fb4da0c80966a66f554ad2f8620947e46ee26211ad7430bf3d8663&" type="video/mp4">
   </video>
 
@@ -143,10 +142,6 @@
     const ctxCanvas = canvas.getContext("2d");
     const overlay = document.getElementById("overlay");
 
-    video.muted = true;
-    video.pause();
-    video.volume = 1.0;
-
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = 100;
@@ -157,6 +152,17 @@
 
     const context = new (window.AudioContext || window.webkitAudioContext)();
     let analyser, dataArray, bufferLength;
+
+    function setupAudioAnalyser() {
+      const src = context.createMediaElementSource(video);
+      analyser = context.createAnalyser();
+      src.connect(analyser);
+      analyser.connect(context.destination);
+      analyser.fftSize = 256;
+
+      bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+    }
 
     function animate() {
       analyser.getByteFrequencyData(dataArray);
@@ -197,26 +203,14 @@
       requestAnimationFrame(animate);
     }
 
-    overlay.addEventListener('click', async () => {
-      try {
-        video.muted = false;
-        await video.play();
-        await context.resume();
-
-        const src = context.createMediaElementSource(video);
-        analyser = context.createAnalyser();
-        src.connect(analyser);
-        analyser.connect(context.destination);
-        analyser.fftSize = 256;
-
-        bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
-
+    overlay.addEventListener('click', () => {
+      video.muted = false;
+      context.resume().then(() => {
+        setupAudioAnalyser();
+        video.play();
         animate();
         overlay.classList.add("hide");
-      } catch (e) {
-        console.error("Playback or AudioContext failed:", e);
-      }
+      });
     });
   </script>
 </body>
