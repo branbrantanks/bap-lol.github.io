@@ -20,16 +20,6 @@
       overflow: hidden;
     }
 
-    video#bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
-      z-index: -1;
-    }
-
     .avatar {
       width: 100px;
       height: 100px;
@@ -82,6 +72,10 @@
       z-index: 0;
     }
 
+    audio {
+      display: none;
+    }
+
     .overlay {
       position: fixed;
       top: 0;
@@ -121,12 +115,6 @@
     <h2>Click to Enter</h2>
   </div>
 
-  <!-- Video Background -->
-  <video id="bg-video" loop playsinline>
-    <source src="https://files.catbox.moe/uutai6.mp4" type="video/mp4">
-  </video>
-
-  <!-- Content -->
   <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar" />
   <h1>bap.lol</h1>
   <div class="links">
@@ -135,10 +123,14 @@
     <a href="https://github.com/branbrantanks" target="_blank">github</a>
   </div>
 
+  <audio id="bg-music" loop>
+    <source src="bg.mp3" type="audio/mpeg">
+  </audio>
+
   <canvas id="waveform"></canvas>
 
   <script>
-    const video = document.getElementById("bg-video");
+    const audio = document.getElementById("bg-music");
     const avatar = document.querySelector(".avatar");
     const canvas = document.getElementById("waveform");
     const ctxCanvas = canvas.getContext("2d");
@@ -152,8 +144,10 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    audio.volume = 0.15;
+
     const context = new (window.AudioContext || window.webkitAudioContext)();
-    const src = context.createMediaElementSource(video);
+    const src = context.createMediaElementSource(audio);
     const analyser = context.createAnalyser();
     src.connect(analyser);
     analyser.connect(context.destination);
@@ -203,14 +197,9 @@
 
     overlay.addEventListener('click', () => {
       context.resume().then(() => {
-        video.muted = false;
-        video.volume = 0.4;
-        video.play().then(() => {
-          animate();
-          overlay.classList.add("hide");
-        }).catch(err => {
-          console.error("Playback failed:", err);
-        });
+        audio.play();
+        animate();
+        overlay.classList.add("hide");
       });
     });
   </script>
