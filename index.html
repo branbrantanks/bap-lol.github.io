@@ -121,11 +121,12 @@
     <h2>Click to Enter</h2>
   </div>
 
-  <!-- Background Video -->
-  <video id="bg-video" loop muted playsinline>
+  <!-- Video Background -->
+  <video id="bg-video" loop playsinline>
     <source src="https://cdn.discordapp.com/attachments/1397515987674202142/1399973624600854609/infectcdHD_1753849808_musicaldown.com.mp4?ex=688af28a&is=6889a10a&hm=688dee4119fb4da0c80966a66f554ad2f8620947e46ee26211ad7430bf3d8663" type="video/mp4">
   </video>
 
+  <!-- Content -->
   <img class="avatar" src="ccf161d497a46d8baf6d5718fa2abef0.webp" alt="Avatar" />
   <h1>bap.lol</h1>
   <div class="links">
@@ -136,6 +137,7 @@
 
   <canvas id="waveform"></canvas>
 
+  <!-- JavaScript -->
   <script>
     const video = document.getElementById("bg-video");
     const avatar = document.querySelector(".avatar");
@@ -202,10 +204,14 @@
 
     overlay.addEventListener('click', () => {
       context.resume().then(() => {
-        video.muted = false; // Enable sound on interaction
-        video.play();
-        animate();
-        overlay.classList.add("hide");
+        video.muted = false;
+        video.volume = 0.4;
+        video.play().then(() => {
+          animate();
+          overlay.classList.add("hide");
+        }).catch(err => {
+          console.error("Playback failed:", err);
+        });
       });
     });
   </script>
